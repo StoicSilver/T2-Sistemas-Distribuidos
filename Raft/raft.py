@@ -15,7 +15,7 @@ class Node:
     def start(self):
         self.is_active = True
 
-class RaftSimulator:
+class Raft:
     def __init__(self, nodes_str):
         self.nodes = {}
         self.leader = None
@@ -199,7 +199,7 @@ def process_raft_file(input_path, output_path):
 
     # nodes
     nodes_str = lines[0]
-    simulator = RaftSimulator(nodes_str)
+    simulator = Raft(nodes_str)
 
     # events
     for line in lines[1:]:

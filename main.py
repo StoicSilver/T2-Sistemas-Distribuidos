@@ -14,7 +14,7 @@ import enum
 # Recuerda que no se permite importar otros módulos/librerías a excepción de los creados
 # por ustedes o las ya incluidas en este main.py
 from Paxos.paxos import Paxos
-from Raft.raft import raft
+from Raft.raft import process_raft_file
 
 if __name__ == "__main__":
     # Completar con tu implementación o crea más archivos y funciones
@@ -28,4 +28,4 @@ if __name__ == "__main__":
         paxos.run()
         paxos.save_output(output_path)
     elif algorithm == "Raft":
-        raft(test_path)
+        process_raft_file(test_path, output_path)
