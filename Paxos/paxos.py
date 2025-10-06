@@ -6,11 +6,25 @@ class Paxos:
         self.accepting_nodes = []
         self.proposing_nodes = []
         self.database = {}
+        self.output_lines = []
 
     def run(self):
         self.create_nodes()
+        self.write_output("LOGS")
         for event in self.lines[2:]:
             self.process(event)
+        if len(self.output_lines) <= 1:
+            self.write_output("No hubo logs")
+        # Ahora la bdd
+        self.write_output("BASE DE DATOS")
+        if not self.database:
+            self.write_output("No hay datos")
+        else:
+            for key in sorted(self.database.keys()):
+                self.write_output(f"{key}={self.database[key]}")
+        
+        
+
 
     def process(self, event):
         instruction = event.split(";")[0]
@@ -42,24 +56,19 @@ class Paxos:
         node = next((node for node in self.proposing_nodes if node.id == node_id), None)
         response = []
         if node:
+            node.acceptedAction = None
             response = node.send_prepare(self.accepting_nodes, n)
 
         not_null_responses = [r for r in response if r is not None]
-        if not not_null_responses:
+        if not_null_responses:
             ok_count = sum(1 for r in response if r[0])
-            node.isReadyToAccept = ok_count > len(self.accepting_nodes) / 2
-            # Busca la acción con el n más alto entre las responses
-            accepted_responses = [r[1] for r in response if r[1] is not None]
-            if node.isReadyToAccept and accepted_responses:
-                self.acceptedAction = max(accepted_responses, key=lambda x: x[0])
-            else:
-                self.acceptedAction = None
+            if ok_count > len(self.accepting_nodes) / 2:
+                node.accepted_n = n
 
     def accept(self, node_id, n, action):
         node = next((node for node in self.proposing_nodes if node.id == node_id), None)
         response = []
         if node.acceptedAction:
-            n = node.acceptedAction[0]
             action = node.acceptedAction[1]
         if node:
             response = node.send_accept(self.accepting_nodes, n, action)
@@ -75,26 +84,42 @@ class Paxos:
             node.isRunning = True
 
     def learn(self):
+        all_actions = set()
         for node in self.accepting_nodes:
             for term_action in node.accepted:
-                count = sum(1 for n in self.accepting_nodes if term_action in n.accepted)
-                if count > len(self.accepting_nodes) / 2:
-                    self.insert_db(term_action[1])
+                all_actions.add(term_action)
 
+        # Consolidar solo las acciones que están en la mayoría de los nodos
+        for term_action in sorted(all_actions, key=lambda x: (x[0], x[1])):
+            count = sum(1 for node in self.accepting_nodes if term_action in node.accepted)
+            if count > len(self.accepting_nodes) / 2:
+                self.insert_db(term_action[1])
         self.reset()
 
+    def write_output(self, line):
+        self.output_lines.append(line)
+        
     def reset(self):
         #TODO Mover esta lógica al nodo mismo, que debería recibir un mensaje de reset
         for node in self.proposing_nodes:
-            node.isReadyToAccept = False
             node.current_prepare = -1
+            node.accepted_n = None
+            node.acceptedAction = None
         for node in self.accepting_nodes:
+            if not node.isRunning:
+                continue
             node.current_term = -1
             node.accepted = []
+            node.last_accepted_value = None
 
     def log(self, var):
         value = self.database.get(var, "Variable no existe")
-        print(f"Log {var}: {value}")
+        self.write_output(f"{var}={value}")
+
+    def save_output(self, filename="paxos_output.txt"):
+        with open(filename, 'w') as f:
+            for line in self.output_lines:
+                f.write(line + "\n")
 
     def insert_db(self, action):
         """COMANDO-VARIABLE-VALOR"""
