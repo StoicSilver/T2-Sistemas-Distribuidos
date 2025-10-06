@@ -1,6 +1,5 @@
 from typing import List
 
-
 class AcceptingNode():
     def __init__(self, id):
         self.id = id

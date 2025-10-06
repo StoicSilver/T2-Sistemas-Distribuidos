@@ -141,7 +141,8 @@ class Paxos:
             # suma valor a var en la base de datos si existe.
             if var in self.database:
                 if self.database[var].isdigit() and value.isdigit():
-                    self.database[var] = self.database[var] + value
+                    self.database[var] = int(
+                        self.database[var]) + int(value)
                 else:
                     self.database[var] = str(
                         self.database[var]) + str(value)
