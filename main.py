@@ -13,7 +13,7 @@ import enum
 
 # Recuerda que no se permite importar otros módulos/librerías a excepción de los creados
 # por ustedes o las ya incluidas en este main.py
-from paxos import paxos
+from paxos import Paxos
 from raft import raft
 
 if __name__ == "__main__":
@@ -23,7 +23,8 @@ if __name__ == "__main__":
     test_path = argv[2]
 
     if algorithm == "Paxos":
-        paxos(test_path)
+        paxos = Paxos(test_path)
+        paxos.run()
     elif algorithm == "Raft":
         raft(test_path)
     print("Mi nombre es Shinichi Kudo, tengo 17 años, reconocido como el mejor de")

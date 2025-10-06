@@ -1,1 +1,3 @@
 *.zip
+*.pyc
+_pycache_/
