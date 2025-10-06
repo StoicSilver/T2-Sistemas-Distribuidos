@@ -15,7 +15,6 @@ class AcceptingNode():
             return self.prepare(message["n"])
         elif type == "accept":
             return self.accept(message["n"], message["action"])
-        
                     
     def prepare(self, n):
         if self.current_term < n: # ok
@@ -25,9 +24,8 @@ class AcceptingNode():
         elif self.current_term > n: # not ok
             return (False, self.last_accepted_value) 
 
-        
     def accept(self, n, action):
-        if self.current_term == n:
+        if self.current_term <= n:
             self.last_accepted_value = (n, action)
             self.accepted.append((n, action))
         elif self.current_term > n:
@@ -38,7 +36,7 @@ class ProposingNode():
     def __init__(self, id):
         self.id = id
         self.current_prepare = -1
-        self.isReadyToAccept = False
+        self.accepted_n = None
         self.acceptedAction = None
     
     def send_prepare(self, nodes: List[AcceptingNode], n: int): 
@@ -47,14 +45,20 @@ class ProposingNode():
         message = {"n": n}
         for node in nodes:
             r = node.recieve_message("prepare", message)
-            responses.append(r)
+            if r:
+                responses.append(r)
+                if r[1] is not None:
+                    if (self.acceptedAction is None or (r[1][0] > self.acceptedAction[0])):
+                        self.acceptedAction = r[1]
         return responses
 
     def send_accept(self, nodes: List[AcceptingNode], n: int, action: str):
-        responses = []
-        self.current_prepare = n
-        message = {"n": n, "action": action}
-        for node in nodes:
-            r = node.recieve_message("accept", message)
-            responses.append(r)
-        return responses
+        if self.accepted_n == n:
+            responses = []
+            self.current_prepare = n
+            message = {"n": n, "action": action}
+            for node in nodes:
+                r = node.recieve_message("accept", message)
+                responses.append(r)
+            return responses
+        return []

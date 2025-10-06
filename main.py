@@ -21,9 +21,11 @@ if __name__ == "__main__":
     file = argv[0] # main.py
     algorithm = argv[1] # Paxos o Raft
     test_path = argv[2]
-
+    file_name = test_path.split("/")[1].split(".")[0]
+    output_path = f"logs/{algorithm}_{file_name}.txt"
     if algorithm == "Paxos":
         paxos = Paxos(test_path)
         paxos.run()
+        paxos.save_output(output_path)
     elif algorithm == "Raft":
         raft(test_path)
