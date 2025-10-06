@@ -12,7 +12,7 @@ import dataclasses
 import enum
 
 from Paxos.paxos import Paxos
-from raft import raft
+from Raft.raft import process_raft_file
 
 if __name__ == "__main__":
     # Completar con tu implementación o crea más archivos y funciones
@@ -26,4 +26,4 @@ if __name__ == "__main__":
         paxos.run()
         paxos.save_output(output_path)
     elif algorithm == "Raft":
-        raft(test_path)
+        process_raft_file(test_path, output_path)
