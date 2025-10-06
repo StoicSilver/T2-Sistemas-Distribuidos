@@ -1,6 +1,3 @@
-import sys
-import os
-
 class Node:
     def __init__(self, node_id, election_timeout):
         self.node_id = node_id
