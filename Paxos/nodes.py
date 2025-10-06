@@ -1,10 +1,11 @@
 from typing import List
 
+
 class AcceptingNode():
     def __init__(self, id):
         self.id = id
-        self.isRunning = True # running, stopped
-        self.current_term = -1 # mayor prepare(n) recibido
+        self.isRunning = True
+        self.current_term = -1
         self.last_accepted_value = None
         self.accepted = []
 
@@ -15,7 +16,7 @@ class AcceptingNode():
             return self.prepare(message["n"])
         elif type == "accept":
             return self.accept(message["n"], message["action"])
-                    
+               
     def prepare(self, n):
         if self.current_term < n: # ok
             self.current_term = n
@@ -48,7 +49,8 @@ class ProposingNode():
             if r:
                 responses.append(r)
                 if r[1] is not None:
-                    if (self.acceptedAction is None or (r[1][0] > self.acceptedAction[0])):
+                    if (self.acceptedAction is None or 
+                        (r[1][0] > self.acceptedAction[0])):
                         self.acceptedAction = r[1]
         return responses
 

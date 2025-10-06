@@ -53,7 +53,9 @@ class Paxos:
             raise ValueError("Instrucción Desconocida")
         
     def prepare(self, node_id, n):
-        node = next((node for node in self.proposing_nodes if node.id == node_id), None)
+        node = next((node for node in 
+                     self.proposing_nodes 
+                     if node.id == node_id), None)
         response = []
         if node:
             node.acceptedAction = None
@@ -66,7 +68,9 @@ class Paxos:
                 node.accepted_n = n
 
     def accept(self, node_id, n, action):
-        node = next((node for node in self.proposing_nodes if node.id == node_id), None)
+        node = next((node for node in
+                     self.proposing_nodes 
+                     if node.id == node_id), None)
         response = []
         if node.acceptedAction:
             action = node.acceptedAction[1]
@@ -74,12 +78,16 @@ class Paxos:
             response = node.send_accept(self.accepting_nodes, n, action)
 
     def stop(self, node_id): 
-        node = next((node for node in self.accepting_nodes if node.id == node_id), None)
+        node = next((node for node in 
+                     self.accepting_nodes 
+                     if node.id == node_id), None)
         if node:
             node.isRunning = False
     
     def start(self, node_id):
-        node = next((node for node in self.accepting_nodes if node.id == node_id), None)
+        node = next((node for node in 
+                     self.accepting_nodes 
+                     if node.id == node_id), None)
         if node:
             node.isRunning = True
 
@@ -91,7 +99,9 @@ class Paxos:
 
         # Consolidar solo las acciones que están en la mayoría de los nodos
         for term_action in sorted(all_actions, key=lambda x: (x[0], x[1])):
-            count = sum(1 for node in self.accepting_nodes if term_action in node.accepted)
+            count = sum(1 for node in 
+                        self.accepting_nodes 
+                        if term_action in node.accepted)
             if count > len(self.accepting_nodes) / 2:
                 self.insert_db(term_action[1])
         self.reset()
@@ -100,7 +110,6 @@ class Paxos:
         self.output_lines.append(line)
         
     def reset(self):
-        #TODO Mover esta lógica al nodo mismo, que debería recibir un mensaje de reset
         for node in self.proposing_nodes:
             node.current_prepare = -1
             node.accepted_n = None
@@ -124,23 +133,24 @@ class Paxos:
     def insert_db(self, action):
         """COMANDO-VARIABLE-VALOR"""
         command = action.split("-")[0]
-        variable = action.split("-")[1]
+        var = action.split("-")[1]
         value = action.split("-")[2]
         if command == "SET":
-            self.database[variable] = value
+            self.database[var] = value
         elif command == "ADD":
-            # suma valor a variable en la base de datos si existe.
-            if variable in self.database:
-                if self.database[variable].isdigit() and value.isdigit():
-                    self.database[variable] = self.database[variable] + value
+            # suma valor a var en la base de datos si existe.
+            if var in self.database:
+                if self.database[var].isdigit() and value.isdigit():
+                    self.database[var] = self.database[var] + value
                 else:
-                    self.database[variable] = str(self.database[variable]) + str(value)
+                    self.database[var] = str(
+                        self.database[var]) + str(value)
             else:
-                self.database[variable] = value
+                self.database[var] = value
         elif command == "DEL":
-            # borra variable de la base de datos si existe
-            if variable in self.database:
-                del self.database[variable]
+            # borra var de la base de datos si existe
+            if var in self.database:
+                del self.database[var]
 
 
 
@@ -162,11 +172,10 @@ class Paxos:
                     continue
 
                 if '#' in stripped_line:
-                    line_before_comment = stripped_line.split('#', 1)[0].strip()
-                    if line_before_comment: # La línea no estaba vacía antes 
-                        clean_lines.append(line_before_comment)
+                    line_b = stripped_line.split('#', 1)[0].strip()
+                    if line_b: 
+                        clean_lines.append(line_b)
                 else:
                     if stripped_line: # Lineas comunes sin comentarios
                         clean_lines.append(stripped_line)
         return clean_lines
-
